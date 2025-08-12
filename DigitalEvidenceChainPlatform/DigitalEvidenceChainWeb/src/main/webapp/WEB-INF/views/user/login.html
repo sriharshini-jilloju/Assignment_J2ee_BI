@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.0/css/bootstrap.min.css}">
+<link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="card auth-card">
+      <h2 class="auth-title">Login</h2>
+
+      <form id="loginForm" th:action="@{/login}" method="post" novalidate>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="mb-3">
+          <label for="authMethod" class="form-label">Sign-in method</label>
+          <select id="authMethod" name="authMethod" class="form-select"
+                  th:attr="data-sso-url=${ssoAuthUrl} ?: @{/oauth2/authorization/keycloak}">
+            <option value="basic" selected>Basic Sign-In</option>
+            <option value="sso">SSO Sign-In</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input class="form-control" type="text" id="username" name="username" autocomplete="username"/>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input class="form-control" type="password" id="password" name="password" autocomplete="current-password"/>
+        </div>
+
+        <div class="d-grid">
+          <input id="loginBtn" class="btn btn-primary" type="submit" value="Login"/>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger mt-3">Invalid username or password.</div>
+        <div th:if="${param.logout}" class="alert alert-success mt-3">You have been logged out.</div>
+      </form>
+
+      <div class="text-center mt-3">
+        <span class="auth-sub d-block">Don't have an account?</span>
+        <a th:href="@{/users/create}" class="btn btn-outline-secondary mt-2">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const form = document.getElementById('loginForm');
+  const method = document.getElementById('authMethod');
+  const user = document.getElementById('username');
+  const pass = document.getElementById('password');
+  const btn  = document.getElementById('loginBtn');
+  // ✅ read the data-* attribute
+  const ssoUrl = method.getAttribute('data-sso-url'); 
+
+  function reflect() {
+    const isSSO = method.value === 'sso';
+    user.disabled = isSSO;
+    pass.disabled = isSSO;
+    btn.value = isSSO ? 'Continue with SSO' : 'Login';
+  }
+
+  method.addEventListener('change', reflect);
+  reflect(); // initial
+
+  form.addEventListener('submit', function (e) {
+    if (method.value === 'sso') {
+      e.preventDefault();            
+      window.location.href = ssoUrl; 
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

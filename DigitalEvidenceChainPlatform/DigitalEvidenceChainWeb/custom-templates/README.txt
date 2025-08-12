@@ -1,0 +1,1 @@
+This is a custom OpenAPI Generator template migrated to Jakarta EE (jakarta.*).
